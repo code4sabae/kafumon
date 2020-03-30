@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<!-- (c)taisukef CC BY  http://fukuno.jig.jp/ -->
+<html>
+<head>
+<meta charset='utf-8'/>
+<meta http-equiv="content-language" content="ja">
+<title>福井県花粉データまとめ（福井市）</title>
+<meta property="og:image" content="kafun-fukui.png">
+<link rel="apple-touch-icon" href="kafun-fukui.png"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, target-densitydpi=medium-dpi">
+<meta name="format-detection" content="telephone=no">
+<script src="https://d3js.org/d3.v3.min.js"></script>
+<script src="lib/fukuno.js"></script>
+<script src="lib/csv.js"></script>
+<script>"use strict";
+
+var place_fukui = "fukui";
+var place_tsuruga = "tsuruga";
+//var place = place_tsuruga;
+var place = place_fukui;
+
+const year2wareki = function(year) {
+	if (year < 2020)
+		return "h" + (year - 1988)
+	return "r" + (year - 2018)
+}
+var getKafunLevelURL = function(year) {
+	const wa = year2wareki(year) // "h" + (year - 1988);
+	const url = "http://www.pref.fukui.lg.jp/doc/toukei-jouhou/opendata/list10_kahun_d/fil/" + wa + "_kahun_" + place + ".csv"
+	return url
+}
+var getKafunLevel = function(year, callback) {
+	var url = getKafunLevelURL(year);
+	//console.log(url)
+	getJSON(url, function(data) {
+		callback(year, data);
+	}, "SJIS");
+};
+
+var showTable = function(data, f) {
+	var s = "<table>";
+	var thtd = "th";
+	for (var i = 0; i < data.length; i++) {
+		s += "<tr>";
+		var d = data[i];
+		for (var j = 0; j < d.length; j++) {
+			s += "<" + thtd + ">" + (f ? f(data[0][j], d[j], d, i) : d[j]) + "</" + thtd + ">";
+		}
+		s += "</tr>";
+		thtd = "td";
+	}
+	s += "</table>";
+	meters.innerHTML = s;
+};
+
+// D3 color
+var colorCategoryScale = d3.scale.category20();
+var makeColors = function() {
+	var css = create("style");
+	var thcss = "";
+	for (var i = 0; i < 20; i++) {
+		thcss += "table tr:nth-child(" + (i + 2) + ") td:nth-child(1) { color: white; background-color: " + colorCategoryScale(i) + "; }\n";
+	}
+	css.innerHTML = thcss;
+	document.body.append(css);
+};
+
+// kafun
+var kafun = [];
+kafun.push([ "年", "スギ最大", "スギ総和", "スギ欠測日", "ヒノキ最大", "ヒノキ総和", "ヒノキ欠測日" ]);
+
+var showKafunTable = function() {
+	showTable(kafun, function(name, val, data, nrow) {
+		if (nrow == 0)
+			return val;
+		if (name == "年") {
+			var link = getKafunLevelURL(val);
+			return "<a href=" + link + " target=_blank>" + val + "</a>";
+		} else if (name != "年" && !name.endsWith("日")) {
+			return fixfloat(val, 1);
+			/*name.endsWith("最大")) {
+			var sval = "" + val;
+			if (sval.indexOf(".") == -1)
+				return sval + ".0";
+			return sval;
+			*/
+		}
+		/*
+		if (name == "場所") {
+			var link = "https://www.google.co.jp/maps?ll=" + val;
+			return "<a href=" + link + " target=_blank>" + val + "</a>";
+		} else {
+			var id = parseInt(data[3], 16);
+			var link = "javascript:showID(" + id + ")";
+			return "<a href=" + link + " class=showid>" + val + "</a>";
+		}
+		*/
+		return val;
+	});
+};
+
+window.onload = function() {
+	makeColors();
+	
+	var sugidata = {};
+	var hinokidata = {};
+	
+	var startyear = 2007;
+	if (document.location.hash == "#latest")
+		startyear = new Date().getFullYear() - 1;
+	
+	for (var i = startyear; i <= new Date().getFullYear(); i++) {
+		getKafunLevel(i, function(year, data) {
+			// https://github.com/d3/d3-3.x-api-reference/blob/master/Time-Formatting.md
+			// %Y-%m-%d
+//		var parse1 = d3.time.format("%m月%d日").parse;
+			var parse2 = d3.time.format("%Y年%m月%d日").parse;
+			
+			var sugi = [];
+			var hinoki = [];
+			var sugimax = 0;
+			var hinokimax = 0;
+			var sugisum = 0;
+			var hinokisum = 0;
+			var sugideny = 0;
+			var hinokideny = 0;
+			for (var i = 1; i < data.length; i++) {
+				var d = data[i];
+				if (d.length < 4)
+					break;
+				var dt = parse2(d[0]);
+				if (!dt) {
+					dt = parse2(year + "年" + d[0]);
+					if (!dt)
+						continue
+				}
+				dt.setFullYear(2000);
+				
+				var vsugi = parseFloat(d[1]);
+				if (isNaN(vsugi)) {
+					sugideny++;
+					vsugi = 0;
+				}
+				var vhinoki = parseFloat(d[2]);
+				if (isNaN(vhinoki)) {
+					hinokideny++;
+					vhinoki = 0;
+				}
+				sugi.push({ dt: dt, value: vsugi, org: d[1] });
+				hinoki.push({ dt: dt, value: vhinoki, org: d[2] });
+				//console.log(dt + " " + d[0]);
+				
+				sugisum += vsugi;
+				hinokisum += vhinoki;
+				
+				sugimax = Math.max(sugimax, vsugi);
+				hinokimax = Math.max(hinokimax, vhinoki);
+			}
+			if (sugi.length > 0) {
+				sugidata[year] = sugi;
+				hinokidata[year] = hinoki;
+				makeGraph("graph_d", sugidata, "sugi");
+				makeGraph("graph_t", hinokidata, "hinoki");
+				
+				kafun.push([ year, sugimax, sugisum, sugideny, hinokimax, hinokisum, hinokideny ]);
+				kafun.sort(function(a, b) {
+					var va = a[0] == "年" ? 10000 : a[0];
+					var vb = b[0] == "年" ? 10000 : b[0];
+					return vb - va;
+				});
+				showKafunTable();
+			}
+		});
+	}
+};
+
+// graph
+var makeGraph = function(svgid, kdata, valname) {
+	clear(svgid);
+	var margin = { top: 20, right: 20, bottom: 30, left: 50 };
+	var width = document.body.clientWidth - margin.left - margin.right;
+	var height = width / 2 - margin.top - margin.bottom;
+	 
+	var svg = d3.select("#" + svgid)
+		.attr("width", width + margin.left + margin.right)
+		.attr("height", height + margin.top + margin.bottom)
+		.append("g")
+		.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+	
+	var min = 10000;
+	var max = 0;
+	var start = null;
+	var end = null;
+	for (var year in kdata) {
+		var data = kdata[year];
+		data.forEach(function(d) {
+			var dt = d.dt;
+			var val = d.value;
+			if (!start)
+				start = dt;
+			if (!end)
+				end = dt;
+			if (dt < start)
+				start = dt;
+			if (dt > end)
+				end = dt;
+			
+			if (val > max)
+				max = val;
+			else if (val < min)
+				min = val;
+		});
+	};
+//	console.log("minmax: " + min + " "+ max);
+	
+	var xScale = d3.scale.linear()
+		.domain([ start, end ])
+		.range([ 0, width ]);
+	 
+	var yScale = d3.scale.linear()
+		.domain([ min, max ])
+//		.domain([ 5000, 0 ])
+//		.domain([ minv, maxv ])
+		.range([ height, 0 ]);
+	 
+	// 軸
+	var fix = function(s) {
+		if (s < 10)
+			return "0" + s;
+		return s;
+	};
+	var xAxis = d3.svg.axis()
+		.scale(xScale)
+		.orient("bottom")
+		.ticks(6)
+//		.tickSize(6, -height)
+		.tickFormat(function(n) {
+			var d = new Date(n);
+			return (d.getMonth() + 1) + "/" + d.getDate();
+		})
+		.innerTickSize(-height)  // 目盛線の長さ（内側）
+		.outerTickSize(0) // 目盛線の長さ（外側）
+		.tickPadding(6); // 目盛線とテキストの間の長さ
+
+	
+	svg.append("g")
+		.attr("class", "x axis")
+		.attr("transform", "translate(0," + height + ")")
+		.call(xAxis);
+	
+	var yAxis = d3.svg.axis()
+		.ticks(10) // 軸の区切り数
+		.scale(yScale)
+		.orient("left")
+//		.tickSize(6, -width);
+		.innerTickSize(-width)  // 目盛線の長さ（内側）
+		.outerTickSize(0) // 目盛線の長さ（外側）
+		.tickPadding(6); // 目盛線とテキストの間の長さ
+	
+	svg.append("g")
+		.attr("class", "y axis")
+		.call(yAxis)
+		.append("text")
+		.attr("y", -10)
+		.attr("x", 10)
+		.style("text-anchor", "end")
+		.text(valname);
+	
+	// data
+	var line = d3.svg.line()
+		.x(function(d) { return xScale(d.dt); })
+		.y(function(d) { return yScale(d.value); })
+		.interpolate("linear"); // linear, cardinal 線の形を決める。
+	
+	let cnt = 0
+	for (let year in kdata)
+		cnt++
+	for (var year in kdata) {
+		var data = kdata[year];
+		
+		//console.log(year, cnt)
+		var col = colorCategoryScale(--cnt);
+		
+		svg.append("path")
+			.datum(data)
+			.attr("class", "line")
+			.attr("d", line)
+			.attr("fill","none")
+			.attr("stroke", col)
+			.attr("stroke-width", year == 2020 ? 5 : 2);
+		/*
+		svg.selectAll("circle")
+			.data(data1)
+			.enter()
+			.append("circle")
+			.attr("r", 2)
+			.attr("fill", col)
+			.attr("cx", function(d) { return xScale(d.dt); })
+			.attr("cy", function(d) { return yScale(d.value); });
+		*/
+	}
+};
+
+</script>
+<style>
+body {
+	text-align: center;
+	font-family: sans-serif;
+	color: #224;
+}
+#credit {
+	margin-top: 1em;
+	font-size: 90%;
+}
+#credit a {
+	color: gray !important;
+}
+table {
+	border-collapse: collapse;
+	border: 1px solid black;
+	margin-left: auto;
+	margin-right: auto;
+	margin-bottom: 1em;
+}
+td, th {
+	border: 1px solid black;
+	text-align: left;
+	padding: 0.1em 0.5em;
+	font-size: 3vw;
+}
+th {
+	font-size: 2.1vw;
+	word-break: break-all;
+	text-align: center;
+}
+td { /*:nth-child(2), td:nth-child(3) { */
+	text-align: right;
+}
+td a {
+	color: white !important;
+}
+.showid {
+	text-decoration: none;
+	color: black;
+}
+#debug {
+	text-align: left;
+}
+#caption {
+	font-size: 80%;
+}
+.axis text {
+	font: 10px sans-serif;
+}
+.axis path, .axis line {
+	fill: none;
+	stroke: #000;
+	stroke-width: 2;
+	shape-rendering: crispEdges;
+}
+.tick line {
+	opacity: 0.1;
+}
+#graph {
+	width: 100%;
+}
+</style>
+</head>
+<body>
+
+<h1>福井県花粉データまとめ（福井市）</h1>
+
+<div id=meters></div>
+<svg id=graph_d></svg>
+<svg id=graph_t></svg>
+
+<div id='credit'>
+DATA: <a href=http://www.pref.fukui.lg.jp/doc/toukei-jouhou/opendata/list10_kahun.html target=_blank>花粉情報 | 福井県ホームページ</a><br>
+LIB: <a href=https://d3js.org/>D3.js - Data-Driven Documents</a><br>
+APP: <a href=http://fukuno.jig.jp/2104>CC BY taisukef</a><br>
+</div>
+
+</body>
+</html>
