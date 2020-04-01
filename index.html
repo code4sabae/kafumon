@@ -1,61 +1,69 @@
 <!DOCTYPE html>
 <html lang='ja'>
+
 <head>
-<meta charset='utf-8'/>
-<title>カフモン - 花粉オープンデータチャレンジ</title>
-<meta property="og:image" content=""/>
-<link rel="apple-touch-icon" href=""/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="format-detection" content="telephone=no">
-<style>
-body {
-	text-align: center;
-	font-family: sans-serif;
-	color: #224;
-}
-#credit {
-	margin-top: 1em;
-	font-size: 90%;
-}
-#main > div {
-	margin: 1em;
-}
-#credit a {
-	color: gray !important;
-}
-</style>
+	<meta charset='utf-8' />
+	<title>カフモン - 花粉オープンデータチャレンジ</title>
+	<meta property="og:image" content="" />
+	<link rel="apple-touch-icon" href="" />
+	<link rel="stylesheet" href="index.css">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="format-detection" content="telephone=no">
+
 </head>
+
 <body>
+	<div id="main">
+		<h1 id="oomidashi">カフモン</h1>
+		<h1 id="midashi">花粉オープンデータチャレンジ</h1>
 
-<div id=main>
-<h1>カフモン - 花粉オープンデータチャレンジ</h1>
+		<p class="sentence">
+			2020/4/1〜2020/5/15までのヒノキ花粉飛散量を予測しよう！<br>
+			（手段は問いません、アルゴリズムでもカンでもOK!）<br>
+		</p>
 
-<div>
-	2020/4/1〜2020/5/15までのヒノキ花粉飛散量を予測しよう！<br>
-	（手段は問いません、アルゴリズムでもカンでもOK!）<br>
-	<br>
-	後日福井県から発表される数値との差を合計し、一番小さい人が優勝！<br>
-	（予測値登録がない日は予測値0とします）<br>
-	<br>
-	優勝者には副賞あり！<br>
-	（予測のコツをインタビューさせてください）<br>
-	<br>
-	とりあえず、予測データを入れるだけ、参加はこちら！<br>
-	「<a href=https://docs.google.com/forms/d/e/1FAIpQLSd2Y0Mo4YbKor6JgJ4jZ_Gp6GO5upvWaQFGRDaDZz7jaGF-CA/viewform>カフモン2020 福井市のヒノキ花粉飛散量予測チャレンジ データ登録フォーム</a>」<br>
-	期間中何度も登録できます！（当日以降分のデータが有効となります）
-</div>
+		</p class="sentence">
+		2020年4月1日から2020年5月15日までの間<br>
+		ヒノキ花粉が福井県にどれくらい飛んでいるかを予想しよう！
+		</p>
 
-<div id=data>
-	参考<br>
-<a href=kafun-fukui.html>福井県花粉データまとめ（福井市）</a>（2007年〜2020年）<br>
-<a href=kafun-tsuruga.html>福井県花粉データまとめ（敦賀市）</a>（2007年〜2015年）<br>
-</div>
+		<p class="sentence">
+			後日、県から発表される数値との差を合計して<br>
+			一番誤差の小さかった人が優勝！<br>
+			（予測値登録がない日は０とします）
+		</p>
 
-</div>
+		<p class="sentence">
+			優勝者には副賞あり！<br>
+			（予測のコツを聞かせてください！）
+		</p>
 
-<div id='credit'>
-APP: <a href=https://fukuno.jig.jp/2805>CC BY taisukef / Code for Sabae</a><br>
-</div>
+		<a href="https://docs.google.com/forms/d/e/1FAIpQLSd2Y0Mo4YbKor6JgJ4jZ_Gp6GO5upvWaQFGRDaDZz7jaGF-CA/viewform"
+			class="btn_join">参加はこちら></a><br>
+
+		<p class="sentence">
+			期間中何度も登録できます！<br>
+			（当日以降分のデータが有効となります）
+		</p>
+	</div>
+
+	<div id=data>
+		<p class="sentence">
+			参考サイト<br>
+			福井県花粉データまとめ(2007年~2020年)
+		</p>
+		<div class="data_access">
+			<a href="kafun-fukui.html" class="btn_access">福井市</a>
+			<a href="kafun-tsuruga.html" class="btn_access">敦賀市</a>
+		</div>
+	</div>
+
+	</div>
+
+	<div id='credit'>
+		APP: <a href=https://fukuno.jig.jp/2805>CC BY taisukef / Code for Sabae</a><br>
+	</div>
 
 </body>
+
 </html>

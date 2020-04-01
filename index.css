@@ -1,0 +1,62 @@
+/*グーグルフォントのリンク*/
+@import url('https://fonts.googleapis.com/css2?family=M+PLUS+1p:wght@700;800;900&display=swap');
+
+body{
+    background: #CCD951;
+}
+
+h1#oomidashi{
+    font-size: 100px;
+    font-weight: 900;
+    text-align: center;
+    font-family: 'M PLUS 1p', sans-serif;
+    color: #F9E8AB;
+}
+
+h1#midashi{
+    font-size: 35px;
+    font-weight: 800;
+    text-align: center;
+    font-family: 'M PLUS 1p', sans-serif;
+    color:#6F5239;
+}
+
+body {
+    text-align: center;
+    font-family: 'M PLUS 1p', sans-serif;
+    font-weight: 700;
+    color:#6F5239;
+}
+
+.btn_join {
+    border: 1px solid#679641;
+    border-radius: 5px;
+    background-color:#679641;
+    padding: 20px;
+    text-align: center;
+    color: white;
+    width: 150px;
+}
+
+.btn_access {
+    border: 1px solid#F9E8AB;
+    border-radius: 5px;
+    background-color:#F9E8AB;
+    padding: 20px;
+    text-align: center;
+    color: #6F5239;
+    width: 150px;
+}
+
+#credit {
+    margin-top: 1em;
+    font-size: 90%;
+}
+
+#main>div {
+    margin: 1em;
+}
+
+#credit a {
+    color: gray !important;
+}
