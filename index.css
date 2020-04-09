@@ -28,25 +28,46 @@ body {
     color:#6F5239;
 }
 
+.sentence{
+    padding:10px;
+}
+
 .btn_join {
-    border: 1px solid#679641;
-    border-radius: 5px;
-    background-color:#679641;
-    padding: 20px;
-    text-align: center;
-    color: white;
-    width: 150px;
+    display: inline-block;
+    padding: 0.5em 1em;
+    text-decoration: none;
+    background: #679641;/*ボタン色*/
+    color: #FFF;
+    border-bottom: solid 4px #3d6850;
+    border-radius: 3px;
+}
+
+.btn_join:active {
+    /*ボタンを押したとき*/
+    -webkit-transform: translateY(4px);
+    transform: translateY(4px);/*下に動く*/
+    box-shadow: 0px 0px 1px rgba(0, 0, 0, 0.2);/*影を小さく*/
+    border-bottom: none;
 }
 
 .btn_access {
-    border: 1px solid#F9E8AB;
-    border-radius: 5px;
-    background-color:#F9E8AB;
-    padding: 20px;
-    text-align: center;
+    display: inline-block;
+    padding: 0.5em 1em;
+    text-decoration: none;
+    background: #F9E8AB;/*ボタン色*/
     color: #6F5239;
-    width: 150px;
+    border-bottom: solid 4px #857b5f;
+    border-radius: 3px;
 }
+
+.btn_access:active {
+    /*ボタンを押したとき*/
+    -webkit-transform: translateY(4px);
+    transform: translateY(4px);/*下に動く*/
+    box-shadow: 0px 0px 1px rgba(0, 0, 0, 0.2);/*影を小さく*/
+    border-bottom: none;
+}
+
 
 #credit {
     margin-top: 1em;
