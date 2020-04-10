@@ -1,0 +1,83 @@
+/*グーグルフォントのリンク*/
+@import url('https://fonts.googleapis.com/css2?family=M+PLUS+1p:wght@700;800;900&display=swap');
+
+body{
+    background: #CCD951;
+}
+
+h1#oomidashi{
+    font-size: 100px;
+    font-weight: 900;
+    text-align: center;
+    font-family: 'M PLUS 1p', sans-serif;
+    color: #F9E8AB;
+}
+
+h1#midashi{
+    font-size: 35px;
+    font-weight: 800;
+    text-align: center;
+    font-family: 'M PLUS 1p', sans-serif;
+    color:#6F5239;
+}
+
+body {
+    text-align: center;
+    font-family: 'M PLUS 1p', sans-serif;
+    font-weight: 700;
+    color:#6F5239;
+}
+
+.sentence{
+    padding:10px;
+}
+
+.btn_join {
+    display: inline-block;
+    padding: 0.5em 1em;
+    text-decoration: none;
+    background: #679641;/*ボタン色*/
+    color: #FFF;
+    border-bottom: solid 4px #3d6850;
+    border-radius: 3px;
+}
+
+.btn_join:active {
+    /*ボタンを押したとき*/
+    -webkit-transform: translateY(4px);
+    transform: translateY(4px);/*下に動く*/
+    box-shadow: 0px 0px 1px rgba(0, 0, 0, 0.2);/*影を小さく*/
+    border-bottom: none;
+}
+
+.btn_access {
+    display: inline-block;
+    padding: 0.5em 1em;
+    text-decoration: none;
+    background: #F9E8AB;/*ボタン色*/
+    color: #6F5239;
+    border-bottom: solid 4px #857b5f;
+    border-radius: 3px;
+}
+
+.btn_access:active {
+    /*ボタンを押したとき*/
+    -webkit-transform: translateY(4px);
+    transform: translateY(4px);/*下に動く*/
+    box-shadow: 0px 0px 1px rgba(0, 0, 0, 0.2);/*影を小さく*/
+    border-bottom: none;
+}
+
+
+#credit {
+    margin-top: 1em;
+    font-size: 90%;
+}
+
+#main>div {
+    margin: 1em;
+}
+
+#credit a {
+    color: gray !important;
+}
