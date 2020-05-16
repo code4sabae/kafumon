@@ -29,30 +29,32 @@
 			（手段は問いません、アルゴリズムでもカンでもOK!）<br>
 		</p>
 
-		</p class="sentence">
-		2020年4月1日から2020年5月15日までの間<br>
-		ヒノキ花粉が福井県にどれくらい飛んでいるかを予想しよう！
-		</p>
-
-		<p class="sentence">
-			後日、県から発表される数値との差を合計して<br>
-			一番誤差の小さかった人が優勝！<br>
-			（予測値登録がない日は０とします）
-		</p>
-
-		<p class="sentence">
-			優勝者には副賞あり！<br>
-			（予測のコツを聞かせてください！）
-		</p>
-
+		<!--
 		<a href="https://docs.google.com/forms/d/e/1FAIpQLSd2Y0Mo4YbKor6JgJ4jZ_Gp6GO5upvWaQFGRDaDZz7jaGF-CA/viewform"
 			class="btn_join">参加はこちら></a><br>
+		-->
+
+		<div class="result">
+			カフモン2020 結果発表！<br>
+			優勝は <span id=winner></span><br>
+			<br>
+			<canvas id="chart2" style="background:white"></canvas>
+		</div>
 
 		<p class="sentence">
-			期間中何度も登録できます！<br>
-			（当日以降分のデータが有効となります）
+			【カフモン2020 お題】<br>
+			後日、県から発表される数値との差を合計して一番誤差の小さかった人が優勝！（予測値登録がない日は０とします）<br>
+			期間中何度も登録できます！（当日以降分のデータが有効となります）<br>
+			優勝者には副賞あり！（予測のコツを聞かせてください！）
 		</p>
+
+
+		<div class="result">
+			<canvas id="chart" style="background:white"></canvas>
+		</div>
+
 	</div>
+
 
 	<div id=data>
 		<p class="sentence">
@@ -70,6 +72,156 @@
 	<div id='credit'>
 		APP: <a href=https://fukuno.jig.jp/2805>CC BY taisukef / Code for Sabae</a> (<a href="https://github.com/code4sabae/kafumon/">src on GitHub</a>)<br>
 	</div>
+
+<script type="module">
+
+import Chart from './lib/Chart.mjs'
+import util from './lib/util.mjs'
+
+const showData = (json) => {
+	const label = json.map(d => d[''])
+	const sugi = json.map(d => parseFloat(d['スギ']))
+	const hinoki = json.map(d => parseFloat(d['ヒノキ']))
+
+	const config = {
+		type: 'line',
+		data: {
+			labels: label,
+			datasets: [{
+				label: 'スギ',
+				backgroundColor: '#380',
+				borderColor: '#380',
+				lineTension: 0,
+				fill: false,
+				data: sugi,
+			}, {
+				label: 'ヒノキ',
+				backgroundColor: '#f85',
+				borderColor: '#f85',
+				// borderDash: [5, 5],
+				lineTension: 0,
+				fill: false,
+				data: hinoki,
+			}]
+		},
+		options: {
+			responsive: true,
+			title: { display: true, text: '福井県花粉オープンデータ（福井市） 2020年' },
+			tooltips: { mode: 'index', intersect: false },
+			hover: { mode: 'nearest', intersect: true },
+			scales: {
+				xAxes: [{
+					display: true,
+					scaleLabel: { display: true, labelString: '日付' }
+				}],
+				yAxes: [{
+					display: true,
+					scaleLabel: { display: true, labelString: '花粉量：個/平方センチメートル' }
+				}]
+			}
+		}
+	}
+	new Chart.Chart(chart, config)
+}
+const parseDate = s => {
+	return '2020-' + s.substring(0, 2) + '-' + s.substring(3, 5)
+}
+const showResult = (json, predict) => {
+	const label = []
+	const data = {}
+	const sumres = {}
+	for (const c in predict[0]) {
+		if (c === 'date') { continue }
+		data[c] = []
+		sumres[c] = 0
+	}
+	const result = []
+	for (let i = new Date('2020-04-01').getTime(); i <= new Date('2020-05-15').getTime(); i += 24 * 60 * 60 * 1000) {
+		const date = util.formatYMD(new Date(i))
+		label.push(date)
+		const res = json.find(r => parseDate(r['']) === date)
+		const nres = res ? parseFloat(res['ヒノキ']) : 0
+		result.push(nres)
+		for (const d in data) {
+			const n = predict.find(p => p.date === date)[d] || 0
+			data[d].push(n)
+			const dif = Math.abs(nres - n)
+			sumres[d] += dif
+		}
+	}
+	let cwinner = null
+	let nwinner = 1 << 30
+	for (const c in sumres) {
+		if (sumres[c] < nwinner) {
+			nwinner = sumres[c]
+			cwinner = c
+		}
+	}
+	winner.textContent = cwinner + 'さん！ (差 ' + nwinner + '個/c㎡)'
+
+	const datasets = []
+	datasets.push({
+		label: 'ヒノキ結果',
+		backgroundColor: '#380',
+		borderColor: '#380',
+		lineTension: 0,
+		borderDash: [5, 5],
+		fill: false,
+		data: result
+	})
+	for (const d in data) {
+		const col = 'hsl(200, 30%, 50%)'
+		datasets.push({
+			label: d,
+			backgroundColor: col,
+			borderColor: col,
+			lineTension: 0,
+			fill: false,
+			data: data[d]
+		})
+	}
+
+	const config = {
+		type: 'line',
+		data: {
+			labels: label,
+			datasets: datasets
+		},
+		options: {
+			responsive: true,
+			title: { display: true, text: 'カフモン2020 予測と結果' },
+			tooltips: { mode: 'index', intersect: false },
+			hover: { mode: 'nearest', intersect: true },
+			scales: {
+				xAxes: [{
+					display: true,
+					scaleLabel: { display: true, labelString: '日付' }
+				}],
+				yAxes: [{
+					display: true,
+					scaleLabel: { display: true, labelString: '花粉量：個/平方センチメートル' }
+				}]
+			}
+		}
+	}
+	console.log(config)
+	new Chart.Chart(chart2, config)
+}
+
+const main = async () => {
+	const url = 'data/r2_kahun_fukui.csv'
+	const json = await util.fetchCSVtoJSON(url)
+	console.log(json)
+	showData(json)
+
+	const urlp = 'data/kafumon2020.csv'
+	const pdata = await util.fetchCSVtoJSON(urlp)
+	console.log(pdata)
+	showResult(json, pdata)
+}
+main()
+
+</script>
 
 </body>
 
